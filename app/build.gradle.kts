@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.com.google.android.secrets.gradle.plugin)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -68,6 +69,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.accompanist.permissions)
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation(libs.firebase.auth)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

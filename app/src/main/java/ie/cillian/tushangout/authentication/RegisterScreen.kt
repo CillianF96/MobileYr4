@@ -19,23 +19,22 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
-@Preview
 @Composable
-fun RegisterScreen() {
+fun RegisterScreen(navController: NavController) {
     var name by remember { mutableStateOf("") }
     var course by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    // Gradient background
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121)) // Orange to Black gradient
+                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121))
                 )
             )
     ) {
@@ -46,7 +45,6 @@ fun RegisterScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // App Title
             Text(
                 text = "TUSHangOut",
                 fontSize = 32.sp,
@@ -57,7 +55,6 @@ fun RegisterScreen() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Input Fields
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -112,7 +109,7 @@ fun RegisterScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Register Button
+
             Button(
                 onClick = { /* TODO: Handle registration logic */ },
                 shape = RoundedCornerShape(50.dp),
@@ -121,7 +118,7 @@ fun RegisterScreen() {
                     .padding(top = 16.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = "Register", color = Color(0xFFFFA726)) // Orange text
+                Text(text = "Register", color = Color(0xFFFFA726))
             }
         }
     }

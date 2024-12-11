@@ -1,9 +1,9 @@
 package ie.cillian.tushangout.authentication
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -19,20 +19,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 
-@Preview
 @Composable
-fun LoginScreen() {
+fun LoginScreen(navController: NavController?) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val firebaseAuth = FirebaseAuth.getInstance()
 
-    // Gradient background
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121)) // Orange to Black gradient
+                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121))
                 )
             )
     ) {
@@ -43,7 +44,6 @@ fun LoginScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // App Title
             Text(
                 text = "TUSHangOut",
                 fontSize = 32.sp,
@@ -52,7 +52,6 @@ fun LoginScreen() {
                 textAlign = TextAlign.Center
             )
 
-            // Login Title
             Text(
                 text = "Login",
                 fontSize = 24.sp,
@@ -61,7 +60,6 @@ fun LoginScreen() {
                 modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
             )
 
-            // Email Input Field
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -72,7 +70,6 @@ fun LoginScreen() {
                 shape = RoundedCornerShape(8.dp)
             )
 
-            // Password Input Field
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -84,17 +81,36 @@ fun LoginScreen() {
                 visualTransformation = PasswordVisualTransformation()
             )
 
-            // Login Button
             Button(
-                onClick = { /* TODO: Handle login logic */ },
+                onClick = {
+                    firebaseAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // Navigate to the next screen on successful login
+                                navController!!.navigate("home")
+                                Log.d("LoginScreen", "Login successful!")
+                            } else {
+                                // Show an error message on failure
+                                Log.e("LoginScreen", "Login failed: ${task.exception?.message}")
+                            }
+                        }
+                },
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = "Login", color = Color(0xFFFFA726)) // Orange text
+                Text(text = "Login", color = Color(0xFFFFA726))
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewLoginScreen() {
+    LoginScreen(
+        navController = null,
+    )
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import ie.cillian.tushangout.component.BuildNavigationGraph
 import ie.cillian.tushangout.home.StartupScreen
 import ie.cillian.tushangout.ui.theme.TUSHangoutTheme
 
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TUSHangoutTheme {
-                    StartupScreen()
+                    BuildNavigationGraph()
             }
         }
     }

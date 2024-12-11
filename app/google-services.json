@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "885271749236",
+    "project_id": "tushangout",
+    "storage_bucket": "tushangout.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885271749236:android:836b7f5afc1e49755ee721",
+        "android_client_info": {
+          "package_name": "ie.cillian.tushangout"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDd2xs6UleqpA9tclDZmRwkJy1sqR2intY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
