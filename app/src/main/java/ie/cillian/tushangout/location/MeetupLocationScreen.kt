@@ -3,12 +3,8 @@ package ie.cillian.tushangout.location
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Directions
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.*
@@ -18,30 +14,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import ie.cillian.tushangout.component.Screen
 
-@Preview
 @Composable
-fun MeetupLocationScreen() {
+fun MeetupLocationScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121)) // Orange to Black gradient
+                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121))
                 )
             )
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Header Section
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -49,7 +42,7 @@ fun MeetupLocationScreen() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = { /* TODO: Handle back */ }) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(
                         imageVector = Icons.Outlined.ArrowBack,
                         contentDescription = "Back",
@@ -58,8 +51,7 @@ fun MeetupLocationScreen() {
                 }
                 Text(
                     text = "TUSHangOut",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 32.sp,
                     color = Color.Black
                 )
                 IconButton(onClick = { /* TODO: Handle more options */ }) {
@@ -74,7 +66,7 @@ fun MeetupLocationScreen() {
             // Image Section
             Image(
                 painter = rememberImagePainter(
-                    data = "https://example.com/your_image_url.jpg", // Replace with your image URL
+                    data = "https://example.com/your_image_url.jpg",
                     builder = {
                         crossfade(true)
                     }
@@ -89,7 +81,6 @@ fun MeetupLocationScreen() {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Coffee Shop Information
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,76 +104,40 @@ fun MeetupLocationScreen() {
                     fontSize = 14.sp,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Open 24 hours • Cozy, Casual, Good for Groups",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "A cozy place to hang out with friends while enjoying freshly brewed coffee. The cafe is known for its vibrant atmosphere and locally-sourced ingredients.",
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Action Buttons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButtonWithText(
-                    icon = Icons.Default.Directions,
-                    text = "Directions",
-                    onClick = { /* TODO: Handle Directions */ }
-                )
-                IconButtonWithText(
-                    icon = Icons.Default.Call,
-                    text = "Call",
-                    onClick = { /* TODO: Handle Call */ }
-                )
-                IconButtonWithText(
-                    icon = Icons.Default.Share,
-                    text = "Share",
-                    onClick = { /* TODO: Handle Share */ }
-                )
+                Button(
+                    onClick = {
+                        navController.navigate(Screen.CurrentLocation.route)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    shape = RoundedCornerShape(50.dp)
+                ) {
+                    Text("Directions", color = Color(0xFFFFA726))
+                }
+                Button(
+                    onClick = { /* TODO: Call action */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    shape = RoundedCornerShape(50.dp)
+                ) {
+                    Text("Call", color = Color(0xFFFFA726))
+                }
+                Button(
+                    onClick = { /* TODO: Share action */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    shape = RoundedCornerShape(50.dp)
+                ) {
+                    Text("Share", color = Color(0xFFFFA726))
+                }
             }
         }
-    }
-}
-
-@Composable
-fun IconButtonWithText(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    text: String,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        IconButton(
-            onClick = onClick,
-            modifier = Modifier
-                .size(48.dp)
-                .background(Color.Black, shape = CircleShape)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = text,
-                tint = Color(0xFFFFA726)
-            )
-        }
-        Text(
-            text = text,
-            fontSize = 12.sp,
-            color = Color.Black
-        )
     }
 }

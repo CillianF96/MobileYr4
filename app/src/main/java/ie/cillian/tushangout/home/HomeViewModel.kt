@@ -1,9 +1,10 @@
 package ie.cillian.tushangout.home
 
 import android.app.Application
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,26 +12,54 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(application: Application)  : AndroidViewModel(application) {
 
-    // A StateFlow to manage the state of the screen (e.g., loading state)
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Idle)
     val uiState: StateFlow<HomeUiState> = _uiState
 
     init {
-        // Example of fetching data or preparing something on initialization
         fetchInitialData()
     }
 
-    // Simulated data fetching or preparation logic
     private fun fetchInitialData() {
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
-            delay(2000) // Simulate a network or database delay
+            delay(2000)
             _uiState.value = HomeUiState.Success(message = "Welcome to TUSHangOut!")
         }
     }
+
+
+    private val meetups = mutableListOf<Pair<String, LatLng>>()
+
+    fun saveMeetupLocation(location: LatLng) {
+        val meetupName = "Example Meetup"
+        meetups.add(meetupName to location)
+        println("Location saved for $meetupName: ${location.latitude}, ${location.longitude}")
+    }
+
+    fun getMeetups(): List<Pair<String, LatLng>> {
+        return meetups
+    }
+
+
+    val homeItems = mutableStateListOf("Default Item 1", "Default Item 2", "Default Item 3")
+
+    fun updateFirstItemWithLocation(location: LatLng) {
+        val newItem = "Meetup at Lat: ${location.latitude}, Lng: ${location.longitude}"
+        if (homeItems.isNotEmpty()) {
+            homeItems[0] = newItem
+        } else {
+            homeItems.add(newItem)
+        }
+    }
+
+
+
+
+
+
+
 }
 
-// UI State definition for managing the screen state
 sealed class HomeUiState {
     object Idle : HomeUiState()
     object Loading : HomeUiState()

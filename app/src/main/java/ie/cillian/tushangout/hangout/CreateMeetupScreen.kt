@@ -1,24 +1,29 @@
 package ie.cillian.tushangout.hangout
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import ie.cillian.tushangout.component.Screen
 import java.time.LocalDate
 import java.time.LocalTime
 
-@Preview
 @Composable
-fun CreateMeetupScreen() {
+fun CreateMeetupScreen(navController: NavController) {
     var meetupName by remember { mutableStateOf("") }
     var courseName by remember { mutableStateOf("") }
     var selectedTime by remember { mutableStateOf(LocalTime.now()) }
@@ -26,13 +31,13 @@ fun CreateMeetupScreen() {
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    // Gradient background
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121)) // Orange to Black gradient
+                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121))
                 )
             )
     ) {
@@ -43,14 +48,27 @@ fun CreateMeetupScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // App Header
-            Text(
-                text = "TUSHangOut",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "TUSHangOut",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Back",
+                        tint = Color.Black
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -63,7 +81,6 @@ fun CreateMeetupScreen() {
                 shape = RoundedCornerShape(8.dp)
             )
 
-            // Course Field
             OutlinedTextField(
                 value = courseName,
                 onValueChange = { courseName = it },
@@ -81,7 +98,10 @@ fun CreateMeetupScreen() {
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Starting Time: ${selectedTime.hour}:${selectedTime.minute}", color = Color(0xFFFFA726))
+                Text(
+                    text = "Starting Time: ${selectedTime.hour}:${selectedTime.minute}",
+                    color = Color(0xFFFFA726)
+                )
             }
 
             if (showTimePicker) {
@@ -95,14 +115,16 @@ fun CreateMeetupScreen() {
                 )
             }
 
-            // Date Picker
             Button(
                 onClick = { showDatePicker = true },
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Enter Date: ${selectedDate.toString()}", color = Color(0xFFFFA726))
+                Text(
+                    text = "Enter Date: ${selectedDate.toString()}",
+                    color = Color(0xFFFFA726)
+                )
             }
 
             if (showDatePicker) {
@@ -118,9 +140,8 @@ fun CreateMeetupScreen() {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Create Meetup Button
             Button(
-                onClick = { /* TODO: Handle create meetup logic */ },
+                onClick = { navController.navigate(Screen.MapLocation.route) },
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
@@ -136,52 +157,60 @@ fun CreateMeetupScreen() {
 
 @Composable
 fun TimePickerDialog(
-    initialTime: LocalTime,
+    initialTime: LocalTime? = LocalTime.now(),
     onTimeSelected: (LocalTime) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    // Placeholder for Time Picker Dialog implementation
-    // Replace with your TimePicker library or custom implementation
-    // For now, we'll just close the dialog on cancel or selection
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text("Select Time") },
-        text = { Text("Time picker goes here") },
-        confirmButton = {
-            TextButton(onClick = { onTimeSelected(LocalTime.of(20, 0)) }) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text("Cancel")
-            }
+    val context = LocalContext.current
+
+    val timePickerDialog = remember {
+        TimePickerDialog(
+            context,
+            { _, hourOfDay, minute ->
+                val selectedTime = LocalTime.of(hourOfDay, minute)
+                onTimeSelected(selectedTime)
+            },
+            initialTime?.hour ?: 0,
+            initialTime?.minute ?: 0,
+            true
+        )
+    }
+
+    DisposableEffect(Unit) {
+        timePickerDialog.setOnCancelListener { onDismissRequest() }
+        timePickerDialog.show()
+        onDispose {
+            timePickerDialog.dismiss()
         }
-    )
+    }
 }
 
 @Composable
 fun DatePickerDialog(
-    initialDate: LocalDate,
+    initialDate: LocalDate = LocalDate.now(),
     onDateSelected: (LocalDate) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    // Placeholder for Date Picker Dialog implementation
-    // Replace with your DatePicker library or custom implementation
-    // For now, we'll just close the dialog on cancel or selection
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        title = { Text("Select Date") },
-        text = { Text("Date picker goes here") },
-        confirmButton = {
-            TextButton(onClick = { onDateSelected(LocalDate.now()) }) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismissRequest) {
-                Text("Cancel")
-            }
+    val context = LocalContext.current
+
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
+                onDateSelected(selectedDate)
+            },
+            initialDate.year,
+            initialDate.monthValue - 1,
+            initialDate.dayOfMonth
+        )
+    }
+
+    DisposableEffect(Unit) {
+        datePickerDialog.setOnCancelListener { onDismissRequest() }
+        datePickerDialog.show()
+        onDispose {
+            datePickerDialog.dismiss()
         }
-    )
+    }
 }

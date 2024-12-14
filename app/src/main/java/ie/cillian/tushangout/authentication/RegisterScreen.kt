@@ -1,5 +1,7 @@
 package ie.cillian.tushangout.authentication
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,10 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -28,6 +30,7 @@ fun RegisterScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    val firebaseAuth = FirebaseAuth.getInstance()
 
     Box(
         modifier = Modifier
@@ -109,9 +112,22 @@ fun RegisterScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
             Button(
-                onClick = { /* TODO: Handle registration logic */ },
+                onClick = {
+                    if (password == confirmPassword) {
+                        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    navController.navigate("login")
+                                    Log.d("RegisterScreen", "User registered successfully")
+                                } else {
+                                    Log.e("RegisterScreen", "Registration failed: ${task.exception?.message}")
+                                }
+                            }
+                    } else {
+                        Log.e("RegisterScreen", "Passwords do not match")
+                    }
+                },
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier

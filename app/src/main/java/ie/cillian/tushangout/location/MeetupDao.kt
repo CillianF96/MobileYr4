@@ -17,5 +17,7 @@ interface MeetupDao {
     @Query("SELECT * FROM meetup")
     fun getAllMeetups(): LiveData<List<Meetup>>
 
+    @Query("SELECT type, image, latitude, longitude FROM meetup")
+    fun getMeetUpPlaces(): LiveData<List<Meetup>>
 
 }

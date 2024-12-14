@@ -14,5 +14,10 @@ data class Meetup (
     val date: Date,
     val location: String ="",
     val description: String = "",
-    val createdBy: String = ""
+    val createdBy: String = "",
+
+    val type: String,
+    val image: String,
+    val latitude: Double?,
+    val longitude: Double?
 )

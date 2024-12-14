@@ -2,22 +2,26 @@ package ie.cillian.tushangout.database
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import ie.cillian.tushangout.hangout.Message
+import ie.cillian.tushangout.location.Meetup
 
 class TUSHangoutRepository (application: Application){
 
-    private val newsDao = TUSHangoutDatabase.getDatabase(application)!!.newsDao()
-    private val recipeDao = TUSHangoutDatabase.getDatabase(application)!!.recipeDao()
+    private val messageDao = TUSHangoutDatabase.getDatabase(application)!!.messageDao()
+    private val meetupDao = TUSHangoutDatabase.getDatabase(application)!!.meetUpDao()
+    private val userDao = TUSHangoutDatabase.getDatabase(application)!!.userDao()
 
-    fun fetchNewsItems(): LiveData<List<News>> {
-        return newsDao.getAllNews()
+
+    fun fetchMessageItems(): LiveData<List<Message>> {
+        return messageDao.getAllMessages()
     }
 
-    fun fetchRecipes(): LiveData<List<Recipe>> {
-        return recipeDao.getAllRecipes()
+    fun fetchMeetups(): LiveData<List<Meetup>> {
+        return meetupDao.getAllMeetups()
     }
 
-    fun fetchBurgerPlaces(): LiveData<List<BurgerPlace>> {
-        return recipeDao.getBurgerPlaces()
+    fun fetchMeetupPlaces(): LiveData<List<Meetup>> {
+        return meetupDao.getMeetUpPlaces()
     }
 
 
