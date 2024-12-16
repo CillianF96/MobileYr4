@@ -63,7 +63,6 @@ fun MeetupLocationScreen(navController: NavController) {
                 }
             }
 
-            // Image Section
             Image(
                 painter = rememberImagePainter(
                     data = "https://example.com/your_image_url.jpg",

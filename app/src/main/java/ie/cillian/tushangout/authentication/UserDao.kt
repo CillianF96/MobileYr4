@@ -7,7 +7,6 @@ import androidx.room.Query
 
 @Dao
 interface UserDao {
-    // Insert user and return the generated primary key
 
     @Insert
     fun saveUser(user: User): Long

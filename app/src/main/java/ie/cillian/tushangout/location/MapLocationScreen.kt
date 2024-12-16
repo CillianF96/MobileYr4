@@ -30,17 +30,14 @@ import kotlinx.coroutines.launch
 fun MapLocationScreen(navController: NavController, saveLocation: (LatLng) -> Unit) {
     val context = LocalContext.current
 
-    // Initial location (e.g., Manila, Philippines)
-    var selectedLocation by remember { mutableStateOf(LatLng(14.5995, 120.9842)) }
+    var selectedLocation by remember { mutableStateOf(LatLng(52.6638, -8.6267)) }
 
-    // Camera position state for map centering
     val cameraPositionState = rememberCameraPositionState {
         position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(selectedLocation, 15f)
     }
 
     val coroutineScope = rememberCoroutineScope()
 
-    // Gradient background
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -54,7 +51,7 @@ fun MapLocationScreen(navController: NavController, saveLocation: (LatLng) -> Un
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // App Header with Back Navigation
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

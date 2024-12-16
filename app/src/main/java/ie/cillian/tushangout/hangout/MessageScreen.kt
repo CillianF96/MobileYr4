@@ -2,16 +2,11 @@ package ie.cillian.tushangout.hangout
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -20,14 +15,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
 import ie.cillian.tushangout.component.Screen
+import java.util.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessageScreen(navController: NavController, message: String, messageViewModel: MessageViewModel) {
+fun MessageScreen(
+    navController: NavController,
+    message: String,
+    messageViewModel: MessageViewModel
+) {
     var userMessage by remember { mutableStateOf("") }
+    var isSaving by remember { mutableStateOf(false) }
+    val firestore = FirebaseFirestore.getInstance()
+    val coroutineScope = rememberCoroutineScope()
 
-    // Gradient background
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -72,8 +76,7 @@ fun MessageScreen(navController: NavController, message: String, messageViewMode
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8E1F4)),
-                elevation = CardDefaults.elevatedCardElevation(4.dp)
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8E1F4))
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -86,10 +89,9 @@ fun MessageScreen(navController: NavController, message: String, messageViewMode
                         color = Color.Black
                     )
                     Text(
-                        text = message, // Display the passed message
+                        text = message,
                         fontSize = 16.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(vertical = 8.dp)
+                        color = Color.Gray
                     )
                 }
             }
@@ -113,16 +115,45 @@ fun MessageScreen(navController: NavController, message: String, messageViewMode
 
             Button(
                 onClick = {
-                    navController.navigate("${Screen.DisplayMessagingForm.route}/$userMessage")
+                    if (userMessage.isNotEmpty()) {
+                        isSaving = true
+
+                        val messageData = hashMapOf(
+                            "senderName" to "User",
+                            "messageText" to userMessage,
+                            "createdAt" to Date().time
+                        )
+
+                        // Save to Firestore
+                        firestore.collection("messages")
+                            .add(messageData)
+                            .addOnSuccessListener {
+                                // Save to Room database in a coroutine
+                                coroutineScope.launch {
+                                    messageViewModel.insertMessage("User", userMessage)
+                                }
+                                isSaving = false
+                                navController.navigate("${Screen.DisplayMessagingForm.route}/$userMessage")
+                            }
+                            .addOnFailureListener {
+                                isSaving = false
+                                println("Error saving message: ${it.message}")
+                            }
+                    }
                 },
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                enabled = !isSaving,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
                     .height(50.dp)
             ) {
-                Text(text = "Send", color = Color(0xFFFFA726))
+                if (isSaving) {
+                    CircularProgressIndicator(color = Color(0xFFFFA726))
+                } else {
+                    Text(text = "Send", color = Color(0xFFFFA726))
+                }
             }
         }
     }

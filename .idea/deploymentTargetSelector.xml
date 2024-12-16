@@ -15,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="TUSHangout">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-12-16T10:57:27.633797800Z">
+        <DropdownSelection timestamp="2024-12-16T22:00:11.455753200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=5HV4VWFEYLPJPJYH" />

@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ie.cillian.tushangout.component.Screen
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisplayMessagingForm(navController: NavController, messageViewModel: MessageViewModel, newMessage: String = "",) {
     val messages by messageViewModel.getAllMessages.observeAsState(initial = emptyList())
@@ -49,7 +48,6 @@ fun DisplayMessagingForm(navController: NavController, messageViewModel: Message
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Display Messages
             messages.forEach { message ->
                 Column(
                     modifier = Modifier

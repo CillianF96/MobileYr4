@@ -76,7 +76,6 @@ fun CreateMeetupScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Meetup Name Field
             OutlinedTextField(
                 value = meetupName,
                 onValueChange = { meetupName = it },
@@ -95,7 +94,6 @@ fun CreateMeetupScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Time Picker
             Button(
                 onClick = { showTimePicker = true },
                 shape = RoundedCornerShape(8.dp),
@@ -145,7 +143,6 @@ fun CreateMeetupScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Save Button
             Button(
                 onClick = {
                     if (meetupName.isNotEmpty() && courseName.isNotEmpty()) {
