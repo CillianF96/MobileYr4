@@ -166,7 +166,7 @@ fun CreateMeetupScreen(navController: NavController) {
                                     "Meetup created successfully!",
                                     Toast.LENGTH_LONG
                                 ).show()
-                                navController.navigate(Screen.Home.route)
+                                navController.navigate(Screen.MapLocation.route)
                             }
                             .addOnFailureListener { exception ->
                                 isSaving = false

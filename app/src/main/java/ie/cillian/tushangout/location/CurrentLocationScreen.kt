@@ -1,6 +1,7 @@
 package ie.cillian.tushangout.location
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.rememberCameraPositionState
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun CurrentLocationScreen(navController: NavController) {
     val context = LocalContext.current
@@ -64,7 +66,7 @@ fun CurrentLocationScreen(navController: NavController) {
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121)) // Orange to Black gradient
+                    colors = listOf(Color(0xFFFFA726), Color(0xFF212121))
                 )
             )
     ) {

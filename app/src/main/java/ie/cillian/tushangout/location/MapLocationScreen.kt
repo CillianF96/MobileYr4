@@ -1,5 +1,6 @@
 package ie.cillian.tushangout.location
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun MapLocationScreen(navController: NavController, saveLocation: (LatLng) -> Unit) {
     val context = LocalContext.current
