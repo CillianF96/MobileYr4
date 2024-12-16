@@ -1,11 +1,13 @@
 package ie.cillian.tushangout.authentication
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -16,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -26,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 fun LoginScreen(navController: NavController?) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
     val firebaseAuth = FirebaseAuth.getInstance()
 
     Box(
@@ -81,36 +83,38 @@ fun LoginScreen(navController: NavController?) {
                 visualTransformation = PasswordVisualTransformation()
             )
 
-            Button(
-                onClick = {
-                    firebaseAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                // Navigate to the next screen on successful login
-                                navController!!.navigate("home")
-                                Log.d("LoginScreen", "Login successful!")
-                            } else {
-                                // Show an error message on failure
-                                Log.e("LoginScreen", "Login failed: ${task.exception?.message}")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
+                Button(
+                    onClick = {
+                        isLoading = true
+                        firebaseAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                isLoading = false
+                                if (task.isSuccessful) {
+                                    navController?.navigate("home")
+                                    Log.d("LoginScreen", "Login successful!")
+                                } else {
+                                    val errorMessage = task.exception?.message ?: "Login failed."
+                                    Log.e("LoginScreen", errorMessage)
+                                    Toast.makeText(
+                                        navController?.context,
+                                        errorMessage,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             }
-                        }
-                },
-                shape = RoundedCornerShape(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Text(text = "Login", color = Color(0xFFFFA726))
+                    },
+                    shape = RoundedCornerShape(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text(text = "Login", color = Color(0xFFFFA726))
+                }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewLoginScreen() {
-    LoginScreen(
-        navController = null,
-    )
 }

@@ -5,17 +5,16 @@ import androidx.room.PrimaryKey
 import java.util.Date
 
 @Entity(tableName = "meetup")
-data class Meetup (
+data class Meetup(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val name: String = "",
-    val course: String = "",
-    val startingTime: String = "",
-    val date: Date,
-    val location: String ="",
+    val id: Long = 0,
+    val name: String,
+    val course: String,
+    val startingTime: String,
+    val date: Long,
+    val location: String,
     val description: String = "",
     val createdBy: String = "",
-
     val type: String,
     val image: String,
     val latitude: Double?,

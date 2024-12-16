@@ -5,9 +5,9 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -25,11 +25,12 @@ import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun RegisterScreen(navController: NavController) {
-    var name by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
     var course by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
     val firebaseAuth = FirebaseAuth.getInstance()
 
     Box(
@@ -59,8 +60,8 @@ fun RegisterScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
+                value = username,
+                onValueChange = { username = it },
                 label = { Text("Name") },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,29 +113,57 @@ fun RegisterScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    if (password == confirmPassword) {
-                        firebaseAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    navController.navigate("login")
-                                    Log.d("RegisterScreen", "User registered successfully")
-                                } else {
-                                    Log.e("RegisterScreen", "Registration failed: ${task.exception?.message}")
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
+                Button(
+                    onClick = {
+                        if (username.isEmpty() || course.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                            Toast.makeText(
+                                navController.context,
+                                "All fields are required!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else if (password != confirmPassword) {
+                            Toast.makeText(
+                                navController.context,
+                                "Passwords do not match!",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            isLoading = true
+                            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                                .addOnCompleteListener { task ->
+                                    isLoading = false
+                                    if (task.isSuccessful) {
+                                        Log.d("RegisterScreen", "User registered successfully")
+                                        Toast.makeText(
+                                            navController.context,
+                                            "Registration successful!",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        navController.navigate("login")
+                                    } else {
+                                        val errorMessage =
+                                            task.exception?.message ?: "Registration failed."
+                                        Log.e("RegisterScreen", errorMessage)
+                                        Toast.makeText(
+                                            navController.context,
+                                            errorMessage,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
                                 }
-                            }
-                    } else {
-                        Log.e("RegisterScreen", "Passwords do not match")
-                    }
-                },
-                shape = RoundedCornerShape(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-            ) {
-                Text(text = "Register", color = Color(0xFFFFA726))
+                        }
+                    },
+                    shape = RoundedCornerShape(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .align(Alignment.CenterHorizontally)
+                ) {
+                    Text(text = "Register", color = Color(0xFFFFA726))
+                }
             }
         }
     }

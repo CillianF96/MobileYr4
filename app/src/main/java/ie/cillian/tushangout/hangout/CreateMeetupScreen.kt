@@ -1,7 +1,6 @@
 package ie.cillian.tushangout.hangout
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,9 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
 import ie.cillian.tushangout.component.Screen
 import java.time.LocalDate
 import java.time.LocalTime
+import java.util.*
 
 @Composable
 fun CreateMeetupScreen(navController: NavController) {
@@ -30,7 +31,10 @@ fun CreateMeetupScreen(navController: NavController) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var isSaving by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val firestore = FirebaseFirestore.getInstance()
 
     Box(
         modifier = Modifier
@@ -115,6 +119,7 @@ fun CreateMeetupScreen(navController: NavController) {
                 )
             }
 
+            // Date Picker
             Button(
                 onClick = { showDatePicker = true },
                 shape = RoundedCornerShape(8.dp),
@@ -122,7 +127,7 @@ fun CreateMeetupScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Enter Date: ${selectedDate.toString()}",
+                    text = "Enter Date: ${selectedDate}",
                     color = Color(0xFFFFA726)
                 )
             }
@@ -140,16 +145,58 @@ fun CreateMeetupScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
+            // Save Button
             Button(
-                onClick = { navController.navigate(Screen.MapLocation.route) },
+                onClick = {
+                    if (meetupName.isNotEmpty() && courseName.isNotEmpty()) {
+                        isSaving = true
+                        val meetup = hashMapOf(
+                            "meetupName" to meetupName,
+                            "courseName" to courseName,
+                            "time" to "${selectedTime.hour}:${selectedTime.minute}",
+                            "date" to selectedDate.toString(),
+                            "createdAt" to Date()
+                        )
+                        firestore.collection("meetups")
+                            .add(meetup)
+                            .addOnSuccessListener {
+                                isSaving = false
+                                Toast.makeText(
+                                    context,
+                                    "Meetup created successfully!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                navController.navigate(Screen.Home.route)
+                            }
+                            .addOnFailureListener { exception ->
+                                isSaving = false
+                                Toast.makeText(
+                                    context,
+                                    "Error: ${exception.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "All fields are required!",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                },
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
-                    .height(50.dp)
+                    .height(50.dp),
+                enabled = !isSaving
             ) {
-                Text(text = "Create Meetup", color = Color(0xFFFFA726))
+                if (isSaving) {
+                    CircularProgressIndicator(color = Color(0xFFFFA726))
+                } else {
+                    Text(text = "Create Meetup", color = Color(0xFFFFA726))
+                }
             }
         }
     }
@@ -157,60 +204,53 @@ fun CreateMeetupScreen(navController: NavController) {
 
 @Composable
 fun TimePickerDialog(
-    initialTime: LocalTime? = LocalTime.now(),
+    initialTime: LocalTime,
     onTimeSelected: (LocalTime) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
 
-    val timePickerDialog = remember {
-        TimePickerDialog(
-            context,
-            { _, hourOfDay, minute ->
-                val selectedTime = LocalTime.of(hourOfDay, minute)
-                onTimeSelected(selectedTime)
-            },
-            initialTime?.hour ?: 0,
-            initialTime?.minute ?: 0,
-            true
-        )
-    }
+    val dialog = android.app.TimePickerDialog(
+        context,
+        { _, hourOfDay, minute ->
+            onTimeSelected(LocalTime.of(hourOfDay, minute))
+        },
+        initialTime.hour,
+        initialTime.minute,
+        true
+    )
 
     DisposableEffect(Unit) {
-        timePickerDialog.setOnCancelListener { onDismissRequest() }
-        timePickerDialog.show()
-        onDispose {
-            timePickerDialog.dismiss()
-        }
+        dialog.setOnDismissListener { onDismissRequest() }
+        dialog.show()
+        onDispose { dialog.dismiss() }
     }
 }
 
+
 @Composable
 fun DatePickerDialog(
-    initialDate: LocalDate = LocalDate.now(),
+    initialDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
 
-    val datePickerDialog = remember {
-        DatePickerDialog(
-            context,
-            { _, year, month, dayOfMonth ->
-                val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-                onDateSelected(selectedDate)
-            },
-            initialDate.year,
-            initialDate.monthValue - 1,
-            initialDate.dayOfMonth
-        )
-    }
+    val dialog = android.app.DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            onDateSelected(LocalDate.of(year, month + 1, dayOfMonth))
+        },
+        initialDate.year,
+        initialDate.monthValue - 1,
+        initialDate.dayOfMonth
+    )
 
     DisposableEffect(Unit) {
-        datePickerDialog.setOnCancelListener { onDismissRequest() }
-        datePickerDialog.show()
-        onDispose {
-            datePickerDialog.dismiss()
-        }
+        dialog.setOnDismissListener { onDismissRequest() }
+        dialog.show()
+        onDispose { dialog.dismiss() }
     }
 }
+
+

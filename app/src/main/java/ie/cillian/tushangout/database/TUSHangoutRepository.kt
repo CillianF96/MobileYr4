@@ -12,7 +12,7 @@ class TUSHangoutRepository (application: Application){
     private val userDao = TUSHangoutDatabase.getDatabase(application)!!.userDao()
 
 
-    fun fetchMessageItems(): LiveData<List<Message>> {
+    suspend fun fetchMessageItems(): LiveData<List<Message>> {
         return messageDao.getAllMessages()
     }
 
@@ -20,8 +20,8 @@ class TUSHangoutRepository (application: Application){
         return meetupDao.getAllMeetups()
     }
 
-    fun fetchMeetupPlaces(): LiveData<List<Meetup>> {
-        return meetupDao.getMeetUpPlaces()
+    fun fetchMeetupPlaces(location: String): List<Meetup> { //check to ensure it doesnt need to be LiveData<List<Meetup>>
+        return meetupDao.getMeetUpPlaces(location)
     }
 
 

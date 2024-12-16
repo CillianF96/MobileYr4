@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.com.google.android.secrets.gradle.plugin)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-kapt") // Apply KAPT plugin for annotation processing
 }
 
 android {
@@ -12,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "ie.cillian.tushangout"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -29,26 +30,38 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
+
     secrets {
         propertiesFileName = "secrets.properties"
+    }
+
+    kapt {
+        correctErrorTypes = true
     }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(platform("com.google.firebase:firebase-bom:32.1.1")) // Add Firebase BOM
+    implementation("com.google.firebase:firebase-auth-ktx") // Firebase Authentication
+    implementation("com.google.firebase:firebase-firestore-ktx") // Firestore
+
+    // Jetpack Compose and Material
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -59,17 +72,23 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.constraint.layout)
     implementation(libs.glide.compose)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.runtime.livedata)
+    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("com.google.code.gson:gson:2.10")
 
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.google.gson)
+    // Google Play Services and Maps
     implementation(libs.play.services.maps)
     implementation(libs.maps.compose)
     implementation(libs.play.services.location)
     implementation(libs.accompanist.permissions)
-    implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation(libs.firebase.auth)
+
+    // Room dependencies
+    implementation("androidx.room:room-runtime:2.5.0")
+    implementation(libs.runtime.livedata)
+    kapt("androidx.room:room-compiler:2.5.0")
+    implementation("androidx.room:room-ktx:2.5.0")
+
+    // LiveData support
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -20,8 +21,9 @@ import ie.cillian.tushangout.component.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DisplayMessagingForm(navController: NavController) {
-    val userMessages = remember { mutableStateListOf("Value 1", "Value 2", "Value 3", "Value 4") }
+fun DisplayMessagingForm(navController: NavController, messageViewModel: MessageViewModel, newMessage: String = "",) {
+    val messages by messageViewModel.getAllMessages.observeAsState(initial = emptyList())
+
 
     Box(
         modifier = Modifier
@@ -38,80 +40,45 @@ fun DisplayMessagingForm(navController: NavController) {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "TUSHangOut",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Back",
-                        tint = Color.Black
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             Text(
                 text = "Forum",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp)
+                color = Color.Black
             )
 
-            userMessages.forEachIndexed { index, message ->
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Display Messages
+            messages.forEach { message ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 ) {
                     Text(
-                        text = "User ${index + 1}",
+                        text = message.senderName,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-
-                    OutlinedTextField(
-                        value = message,
-                        onValueChange = { userMessages[index] = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            containerColor = Color.White,
-                            unfocusedBorderColor = Color.Gray,
-                            focusedBorderColor = Color.Black
-                        )
+                    Text(
+                        text = message.messageText,
+                        fontSize = 14.sp,
+                        color = Color.Gray
                     )
                 }
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Home Button
             Button(
                 onClick = { navController.navigate(Screen.Home.route) },
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp)
-                    .height(50.dp)
+                modifier = Modifier.fillMaxWidth().padding(16.dp).height(50.dp)
             ) {
-                Text(text = "Home", color = Color(0xFFFFA726))
+                Text("Home", color = Color(0xFFFFA726))
             }
         }
     }

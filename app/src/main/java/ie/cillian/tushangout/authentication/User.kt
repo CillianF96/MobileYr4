@@ -1,15 +1,21 @@
 package ie.cillian.tushangout.authentication
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity("user")
-data class User (
+@Entity(tableName = "users")
+data class User(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val name: String = "",
-    val email: String = "",
-    val course: String = "",
-    val password: String = ""
+    val id: Long = 0,
 
+    @ColumnInfo(name = "username")
+    val username: String,
+
+    @ColumnInfo(name = "email")
+    val email: String,
+
+    @ColumnInfo(name = "password")
+    val password: String
 )
+

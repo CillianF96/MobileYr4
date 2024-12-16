@@ -7,12 +7,19 @@ import androidx.room.Query
 
 @Dao
 interface UserDao {
+    // Insert user and return the generated primary key
 
     @Insert
-    suspend fun saveUser(user: User)
+    fun saveUser(user: User): Long
 
-    @Query("SELECT * FROM user")
+    // Fetch user by username
+    @Query("SELECT * FROM users WHERE username = :username")
+    fun getUserByUsername(username: String): User?
+
+    // Fetch all users
+    @Query("SELECT * FROM users")
     fun getAllUsers(): LiveData<List<User>>
+
 
 
 }

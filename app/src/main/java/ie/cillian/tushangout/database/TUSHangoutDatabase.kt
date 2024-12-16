@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import ie.cillian.tushangout.authentication.User
@@ -17,8 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Message::class, Meetup::class, User::class], version = 1)
-@TypeConverters(ArrayListConverter::class)
+@Database(entities = [Message::class, Meetup::class, User::class], version = 2)
+@TypeConverters(ArrayListConverter::class, DateConverter::class, TimeConverter::class)
 abstract class TUSHangoutDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -26,21 +25,22 @@ abstract class TUSHangoutDatabase : RoomDatabase() {
     abstract fun meetUpDao(): MeetupDao
 
     companion object {
+        @Volatile
         private var instance: TUSHangoutDatabase? = null
         private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-        @Synchronized
-        fun getDatabase(context: Context): TUSHangoutDatabase? {
-            if (instance == null) {
-                instance = Room.databaseBuilder(
+        fun getDatabase(context: Context): TUSHangoutDatabase {
+            return instance ?: synchronized(this) {
+                val newInstance = Room.databaseBuilder(
                     context.applicationContext,
                     TUSHangoutDatabase::class.java,
-                    "tushangout_database"
+                    "tushangout_db"
                 )
                     .addCallback(roomDatabaseCallback(context))
                     .build()
+                instance = newInstance
+                newInstance
             }
-            return instance
         }
 
         private fun roomDatabaseCallback(context: Context): Callback {
@@ -48,10 +48,19 @@ abstract class TUSHangoutDatabase : RoomDatabase() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
                     coroutineScope.launch {
-                        // seedDatabase(context, getDatabase(context))
+                        seedDatabase(getDatabase(context))
                     }
                 }
             }
+        }
+
+        private suspend fun seedDatabase(database: TUSHangoutDatabase) {
+            database.messageDao().insertMessage(
+                Message(senderName = "Admin",
+                    messageText = "Welcome to TUSHangOut!",
+                    //timestamp = System.currentTimeMillis()
+                    )
+            )
         }
     }
 }

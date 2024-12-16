@@ -8,7 +8,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,10 +24,10 @@ import ie.cillian.tushangout.component.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MessageScreen(
-    navController: NavController,
-    message: String
-) {
+fun MessageScreen(navController: NavController, message: String, messageViewModel: MessageViewModel) {
+    var userMessage by remember { mutableStateOf("") }
+
+    // Gradient background
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -83,7 +86,7 @@ fun MessageScreen(
                         color = Color.Black
                     )
                     Text(
-                        text = message,
+                        text = message, // Display the passed message
                         fontSize = 16.sp,
                         color = Color.Gray,
                         modifier = Modifier.padding(vertical = 8.dp)
@@ -93,7 +96,6 @@ fun MessageScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            var userMessage = remember { "" }
             OutlinedTextField(
                 value = userMessage,
                 onValueChange = { userMessage = it },
@@ -110,7 +112,9 @@ fun MessageScreen(
             )
 
             Button(
-                onClick = { navController.navigate(Screen.DisplayMessagingForm.route) },
+                onClick = {
+                    navController.navigate("${Screen.DisplayMessagingForm.route}/$userMessage")
+                },
                 shape = RoundedCornerShape(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
