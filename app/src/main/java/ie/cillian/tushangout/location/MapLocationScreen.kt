@@ -61,7 +61,7 @@ fun MapLocationScreen(navController: NavController) {
                     // Pass selected location back to the previous screen
                     navController.previousBackStackEntry
                         ?.savedStateHandle?.set("selectedLocation", selectedLocation)
-                    navController.popBackStack() // Navigate back
+                    navController.popBackStack()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
