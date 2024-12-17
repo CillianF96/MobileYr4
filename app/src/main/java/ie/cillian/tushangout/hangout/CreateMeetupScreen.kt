@@ -30,18 +30,17 @@ fun CreateMeetupScreen(navController: NavController) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
-    var selectedLocation by remember { mutableStateOf<LatLng?>(null) } // Holds selected LatLng
+    var selectedLocation by remember { mutableStateOf<LatLng?>(null) }
     var isSaving by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val firestore = FirebaseFirestore.getInstance()
 
-    // Retrieve the selected location returned from MapLocationScreen
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     LaunchedEffect(savedStateHandle) {
         savedStateHandle?.get<LatLng>("selectedLocation")?.let { latLng ->
             selectedLocation = latLng
-            savedStateHandle.remove<LatLng>("selectedLocation") // Clear the state after retrieving
+            savedStateHandle.remove<LatLng>("selectedLocation")
         }
     }
 

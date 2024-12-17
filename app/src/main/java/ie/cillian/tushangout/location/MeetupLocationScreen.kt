@@ -117,12 +117,17 @@ fun MeetupLocationScreen(navController: NavController, latitude: Double, longitu
                     Text("Directions", color = Color(0xFFFFA726))
                 }
                 Button(
-                    onClick = { /* TODO: Call action */ },
+                    onClick = {
+                        navController.navigate(
+                            "${Screen.Message.route}/Meetup Name/Your Course/2024-12-17/12:00/${latitude}/${longitude}"
+                        )
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     shape = RoundedCornerShape(50.dp)
                 ) {
-                    Text("Call", color = Color(0xFFFFA726))
+                    Text("Message", color = Color(0xFFFFA726))
                 }
+
                 Button(
                     onClick = { /* TODO: Share action */ },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black),

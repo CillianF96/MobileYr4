@@ -88,5 +88,34 @@ fun BuildNavigationGraph(
         }
 
         composable(Screen.MapLocation.route) { MapLocationScreen(navController) }
+
+        composable(
+            route = "${Screen.Message.route}/{meetupName}/{course}/{date}/{time}/{latitude}/{longitude}",
+            arguments = listOf(
+                navArgument("meetupName") { type = NavType.StringType },
+                navArgument("course") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType },
+                navArgument("time") { type = NavType.StringType },
+                navArgument("latitude") { type = NavType.StringType },
+                navArgument("longitude") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val meetupName = backStackEntry.arguments?.getString("meetupName") ?: "No Name"
+            val course = backStackEntry.arguments?.getString("course") ?: "No Course"
+            val date = backStackEntry.arguments?.getString("date") ?: "No Date"
+            val time = backStackEntry.arguments?.getString("time") ?: "No Time"
+            val latitude = backStackEntry.arguments?.getString("latitude") ?: "0.0"
+            val longitude = backStackEntry.arguments?.getString("longitude") ?: "0.0"
+
+            MessageScreen(
+                navController = navController,
+                message = "Meetup: $meetupName\nCourse: $course\nDate: $date\nTime: $time\nLocation: $latitude, $longitude",
+                messageViewModel = messageViewModel
+            )
+        }
+
+
     }
+
+
 }
