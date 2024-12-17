@@ -4,8 +4,6 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import ie.cillian.tushangout.component.Screen
 import java.time.LocalDate
@@ -26,15 +25,25 @@ import java.util.*
 @Composable
 fun CreateMeetupScreen(navController: NavController) {
     var meetupName by remember { mutableStateOf("") }
-    var courseName by remember { mutableStateOf("") }
+    var course by remember { mutableStateOf("") }
     var selectedTime by remember { mutableStateOf(LocalTime.now()) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showTimePicker by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
+    var selectedLocation by remember { mutableStateOf<LatLng?>(null) } // Holds selected LatLng
     var isSaving by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val firestore = FirebaseFirestore.getInstance()
+
+    // Retrieve the selected location returned from MapLocationScreen
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    LaunchedEffect(savedStateHandle) {
+        savedStateHandle?.get<LatLng>("selectedLocation")?.let { latLng ->
+            selectedLocation = latLng
+            savedStateHandle.remove<LatLng>("selectedLocation") // Clear the state after retrieving
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -52,58 +61,28 @@ fun CreateMeetupScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "TUSHangOut",
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Back",
-                        tint = Color.Black
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Text("TUSHangOut", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color.Black)
 
             OutlinedTextField(
                 value = meetupName,
                 onValueChange = { meetupName = it },
                 label = { Text("Meetup Name") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
+                modifier = Modifier.fillMaxWidth()
             )
 
             OutlinedTextField(
-                value = courseName,
-                onValueChange = { courseName = it },
+                value = course,
+                onValueChange = { course = it },
                 label = { Text("Course") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp)
+                modifier = Modifier.fillMaxWidth()
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = { showTimePicker = true },
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Starting Time: ${selectedTime.hour}:${selectedTime.minute}",
-                    color = Color(0xFFFFA726)
-                )
+                Text("Starting Time: ${selectedTime.hour}:${selectedTime.minute}")
             }
 
             if (showTimePicker) {
@@ -117,17 +96,12 @@ fun CreateMeetupScreen(navController: NavController) {
                 )
             }
 
-            // Date Picker
             Button(
                 onClick = { showDatePicker = true },
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "Enter Date: ${selectedDate}",
-                    color = Color(0xFFFFA726)
-                )
+                Text("Enter Date: $selectedDate")
             }
 
             if (showDatePicker) {
@@ -141,19 +115,38 @@ fun CreateMeetupScreen(navController: NavController) {
                 )
             }
 
+            Button(
+                onClick = { navController.navigate(Screen.MapLocation.route) },
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Select Location on Map")
+            }
+
+            selectedLocation?.let {
+                Text(
+                    text = "Selected Location: ${it.latitude}, ${it.longitude}",
+                    fontSize = 16.sp,
+                    color = Color.Gray
+                )
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = {
-                    if (meetupName.isNotEmpty() && courseName.isNotEmpty()) {
+                    if (meetupName.isNotEmpty() && course.isNotEmpty() && selectedLocation != null) {
                         isSaving = true
                         val meetup = hashMapOf(
                             "meetupName" to meetupName,
-                            "courseName" to courseName,
+                            "course" to course,
                             "time" to "${selectedTime.hour}:${selectedTime.minute}",
                             "date" to selectedDate.toString(),
+                            "latitude" to selectedLocation!!.latitude,
+                            "longitude" to selectedLocation!!.longitude,
                             "createdAt" to Date()
                         )
+
                         firestore.collection("meetups")
                             .add(meetup)
                             .addOnSuccessListener {
@@ -163,7 +156,7 @@ fun CreateMeetupScreen(navController: NavController) {
                                     "Meetup created successfully!",
                                     Toast.LENGTH_LONG
                                 ).show()
-                                navController.navigate(Screen.MapLocation.route)
+                                navController.popBackStack()
                             }
                             .addOnFailureListener { exception ->
                                 isSaving = false
@@ -176,23 +169,20 @@ fun CreateMeetupScreen(navController: NavController) {
                     } else {
                         Toast.makeText(
                             context,
-                            "All fields are required!",
+                            "All fields, including location, are required!",
                             Toast.LENGTH_LONG
                         ).show()
                     }
                 },
-                shape = RoundedCornerShape(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
-                    .height(50.dp),
-                enabled = !isSaving
+                    .height(50.dp)
             ) {
                 if (isSaving) {
-                    CircularProgressIndicator(color = Color(0xFFFFA726))
+                    CircularProgressIndicator(color = Color.White)
                 } else {
-                    Text(text = "Create Meetup", color = Color(0xFFFFA726))
+                    Text("Create Meetup")
                 }
             }
         }
@@ -206,24 +196,19 @@ fun TimePickerDialog(
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
-
     val dialog = android.app.TimePickerDialog(
         context,
-        { _, hourOfDay, minute ->
-            onTimeSelected(LocalTime.of(hourOfDay, minute))
-        },
+        { _, hourOfDay, minute -> onTimeSelected(LocalTime.of(hourOfDay, minute)) },
         initialTime.hour,
         initialTime.minute,
         true
     )
-
     DisposableEffect(Unit) {
         dialog.setOnDismissListener { onDismissRequest() }
         dialog.show()
         onDispose { dialog.dismiss() }
     }
 }
-
 
 @Composable
 fun DatePickerDialog(
@@ -232,22 +217,16 @@ fun DatePickerDialog(
     onDismissRequest: () -> Unit
 ) {
     val context = LocalContext.current
-
     val dialog = android.app.DatePickerDialog(
         context,
-        { _, year, month, dayOfMonth ->
-            onDateSelected(LocalDate.of(year, month + 1, dayOfMonth))
-        },
+        { _, year, month, dayOfMonth -> onDateSelected(LocalDate.of(year, month + 1, dayOfMonth)) },
         initialDate.year,
         initialDate.monthValue - 1,
         initialDate.dayOfMonth
     )
-
     DisposableEffect(Unit) {
         dialog.setOnDismissListener { onDismissRequest() }
         dialog.show()
         onDispose { dialog.dismiss() }
     }
 }
-
-

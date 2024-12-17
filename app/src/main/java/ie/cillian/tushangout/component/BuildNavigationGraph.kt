@@ -33,6 +33,7 @@ fun BuildNavigationGraph(
         composable(Screen.Register.route) { RegisterScreen(navController) }
         composable(Screen.Home.route) { HomeScreen(navController, homeViewModel) }
         composable(Screen.CreateMeetup.route) { CreateMeetupScreen(navController) }
+
         composable(
             route = "${Screen.DisplayMessagingForm.route}/{newMessage}",
             arguments = listOf(navArgument("newMessage") { defaultValue = "No Message" })
@@ -59,13 +60,11 @@ fun BuildNavigationGraph(
 
         composable(Screen.CurrentLocation.route) { CurrentLocationScreen(navController) }
         composable(Screen.MeetupLocation.route) { MeetupLocationScreen(navController) }
+
+        // Fix: Remove saveLocation and rely on SavedStateHandle
         composable(Screen.MapLocation.route) {
-            MapLocationScreen(
-                navController = navController,
-                saveLocation = { selectedLocation: LatLng ->
-                    homeViewModel.updateFirstItemWithLocation(selectedLocation)
-                }
-            )
+            MapLocationScreen(navController = navController)
         }
     }
 }
+
