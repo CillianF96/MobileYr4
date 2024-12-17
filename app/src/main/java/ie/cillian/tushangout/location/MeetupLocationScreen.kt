@@ -22,7 +22,7 @@ import coil.compose.rememberImagePainter
 import ie.cillian.tushangout.component.Screen
 
 @Composable
-fun MeetupLocationScreen(navController: NavController) {
+fun MeetupLocationScreen(navController: NavController, latitude: Double, longitude: Double) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +70,7 @@ fun MeetupLocationScreen(navController: NavController) {
                         crossfade(true)
                     }
                 ),
-                contentDescription = "Coffee Shop Image",
+                contentDescription = "Meetup Location Image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
@@ -86,22 +86,16 @@ fun MeetupLocationScreen(navController: NavController) {
                     .padding(horizontal = 16.dp)
             ) {
                 Text(
-                    text = "Brew Mix Coffee Shop",
+                    text = "Meetup Location",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = Color.Black
                 )
-                Text(
-                    text = "Manila, Philippines • Coffee Shop",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "4.5 ★ (143 Reviews)",
-                    fontWeight = FontWeight.SemiBold,
+                    text = "Latitude: $latitude, Longitude: $longitude",
                     fontSize = 14.sp,
-                    color = Color.Black
+                    color = Color.Gray
                 )
             }
 
@@ -115,7 +109,7 @@ fun MeetupLocationScreen(navController: NavController) {
             ) {
                 Button(
                     onClick = {
-                        navController.navigate(Screen.CurrentLocation.route)
+                        navController.navigate("${Screen.CurrentLocation.route}/${latitude}/${longitude}")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     shape = RoundedCornerShape(50.dp)

@@ -2,11 +2,11 @@ package ie.cillian.tushangout.component
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.google.android.gms.maps.model.LatLng
 import ie.cillian.tushangout.authentication.LoginScreen
 import ie.cillian.tushangout.authentication.RegisterScreen
 import ie.cillian.tushangout.hangout.CreateMeetupScreen
@@ -28,10 +28,15 @@ fun BuildNavigationGraph(
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = Screen.Startup.route) {
+
         composable(Screen.Startup.route) { StartupScreen(navController) }
+
         composable(Screen.Login.route) { LoginScreen(navController) }
+
         composable(Screen.Register.route) { RegisterScreen(navController) }
+
         composable(Screen.Home.route) { HomeScreen(navController, homeViewModel) }
+
         composable(Screen.CreateMeetup.route) { CreateMeetupScreen(navController) }
 
         composable(
@@ -58,13 +63,30 @@ fun BuildNavigationGraph(
             )
         }
 
-        composable(Screen.CurrentLocation.route) { CurrentLocationScreen(navController) }
-        composable(Screen.MeetupLocation.route) { MeetupLocationScreen(navController) }
-
-        // Fix: Remove saveLocation and rely on SavedStateHandle
-        composable(Screen.MapLocation.route) {
-            MapLocationScreen(navController = navController)
+        composable(
+            route = "${Screen.CurrentLocation.route}/{latitude}/{longitude}",
+            arguments = listOf(
+                navArgument("latitude") { type = NavType.StringType },
+                navArgument("longitude") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val latitude = backStackEntry.arguments?.getString("latitude")?.toDoubleOrNull() ?: 0.0
+            val longitude = backStackEntry.arguments?.getString("longitude")?.toDoubleOrNull() ?: 0.0
+            CurrentLocationScreen(navController = navController, latitude = latitude, longitude = longitude)
         }
+
+        composable(
+            route = "${Screen.MeetupLocation.route}/{latitude}/{longitude}",
+            arguments = listOf(
+                navArgument("latitude") { type = NavType.StringType },
+                navArgument("longitude") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val latitude = backStackEntry.arguments?.getString("latitude")?.toDoubleOrNull() ?: 0.0
+            val longitude = backStackEntry.arguments?.getString("longitude")?.toDoubleOrNull() ?: 0.0
+            MeetupLocationScreen(navController = navController, latitude = latitude, longitude = longitude)
+        }
+
+        composable(Screen.MapLocation.route) { MapLocationScreen(navController) }
     }
 }
-

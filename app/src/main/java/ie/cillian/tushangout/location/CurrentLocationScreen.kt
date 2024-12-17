@@ -8,8 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,7 +29,7 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun CurrentLocationScreen(navController: NavController) {
+fun CurrentLocationScreen(navController: NavController, latitude: Double, longitude: Double) {
     val context = LocalContext.current
     var hasLocationPermission by remember {
         mutableStateOf(
@@ -54,10 +52,12 @@ fun CurrentLocationScreen(navController: NavController) {
         }
     }
 
+    val meetupLocation = LatLng(latitude, longitude)
+
     val cameraPositionState = rememberCameraPositionState {
         position = com.google.android.gms.maps.model.CameraPosition.fromLatLngZoom(
-            LatLng(14.5995, 120.9842), // Manila Coordinates
-            12f
+            meetupLocation,
+            15f
         )
     }
 
@@ -74,7 +74,7 @@ fun CurrentLocationScreen(navController: NavController) {
             modifier = Modifier.fillMaxSize()
         ) {
             Text(
-                text = "TUSHangOut",
+                text = "Meetup Location",
                 fontSize = 24.sp,
                 color = Color.Black,
                 modifier = Modifier.padding(16.dp)
@@ -91,12 +91,8 @@ fun CurrentLocationScreen(navController: NavController) {
                 cameraPositionState = cameraPositionState
             ) {
                 Marker(
-                    state = MarkerState(position = LatLng(14.5995, 120.9842)),
-                    title = "Your Location"
-                )
-                Marker(
-                    state = MarkerState(position = LatLng(14.5506, 121.0347)),
-                    title = "Brew Mix Coffee Shop"
+                    state = MarkerState(position = meetupLocation),
+                    title = "Selected Meetup Location"
                 )
             }
         }
