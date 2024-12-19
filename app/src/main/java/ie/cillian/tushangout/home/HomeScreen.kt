@@ -60,6 +60,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = view
 
                 IconButton(
                     onClick = {
+                        homeViewModel.resetState()
                         auth.signOut()
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
@@ -84,42 +85,50 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = view
 
                 is HomeUiState.Success -> {
                     val meetups = (uiState as HomeUiState.Success).meetups
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    ) {
-                        items(meetups) { meetup ->
-                            Card(
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                                    .clickable {
-                                        navController.navigate(
-                                            "${Screen.MeetupLocation.route}/${meetup.latitude}/${meetup.longitude}"
-                                        )
-                                    }
-                            ) {
-                                Column(
+                    if (meetups.isEmpty()) {
+                        Text(
+                            text = "No meetups available for your course",
+                            color = Color.Gray,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                        ) {
+                            items(meetups) { meetup ->
+                                Card(
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White),
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp)
+                                        .padding(vertical = 8.dp)
+                                        .clickable {
+                                            navController.navigate(
+                                                "${Screen.MeetupLocation.route}/${meetup.latitude}/${meetup.longitude}"
+                                            )
+                                        }
                                 ) {
-                                    Text(
-                                        text = meetup.meetupName,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text("Course: ${meetup.course}", fontSize = 16.sp)
-                                    Text("Date: ${meetup.date}", fontSize = 16.sp)
-                                    Text("Time: ${meetup.time}", fontSize = 16.sp)
-                                    Text(
-                                        "Location: ${meetup.latitude}, ${meetup.longitude}",
-                                        fontSize = 14.sp,
-                                        color = Color.Gray
-                                    )
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        Text(
+                                            text = meetup.meetupName,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text("Course: ${meetup.course}", fontSize = 16.sp)
+                                        Text("Date: ${meetup.date}", fontSize = 16.sp)
+                                        Text("Time: ${meetup.time}", fontSize = 16.sp)
+                                        Text(
+                                            "Location: ${meetup.latitude}, ${meetup.longitude}",
+                                            fontSize = 14.sp,
+                                            color = Color.Gray
+                                        )
+                                    }
                                 }
                             }
                         }

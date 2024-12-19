@@ -95,7 +95,7 @@ fun MeetupLocationScreen(navController: NavController, latitude: Double, longitu
                 Text(
                     text = "Latitude: $latitude, Longitude: $longitude",
                     fontSize = 14.sp,
-                    color = Color.Gray
+                    color = Color.Black
                 )
             }
 

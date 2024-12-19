@@ -20,7 +20,7 @@ class TUSHangoutRepository (application: Application){
         return meetupDao.getAllMeetups()
     }
 
-    fun fetchMeetupPlaces(location: String): List<Meetup> { //check to ensure it doesnt need to be LiveData<List<Meetup>>
+    fun fetchMeetupPlaces(location: String): List<Meetup> {
         return meetupDao.getMeetUpPlaces(location)
     }
 

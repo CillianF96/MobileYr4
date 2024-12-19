@@ -4,13 +4,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,13 +22,16 @@ import java.util.UUID
 @Composable
 fun RegisterScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
-    var course by remember { mutableStateOf("") }
+    var selectedCourse by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val firebaseAuth = FirebaseAuth.getInstance()
     val firestore = FirebaseFirestore.getInstance()
+
+    val courses = listOf("sd4", "sd1")
+    var expanded by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -55,38 +58,67 @@ fun RegisterScreen(navController: NavController) {
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Name") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Name", color = Color.Black) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.Black)
             )
 
-            OutlinedTextField(
-                value = course,
-                onValueChange = { course = it },
-                label = { Text("Course") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (selectedCourse.isEmpty()) "Select Course" else selectedCourse,
+                        color = Color.Black
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFA726))
+                ) {
+                    courses.forEach { course ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedCourse = course
+                                expanded = false
+                            },
+                            text = {
+                                Text(text = course, color = Color.Black)
+                            }
+                        )
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Email", color = Color.Black) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.Black)
             )
 
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text("Password", color = Color.Black) },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.Black)
             )
 
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
+                label = { Text("Confirm Password", color = Color.Black) },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.Black)
             )
 
             if (isLoading) {
@@ -94,7 +126,7 @@ fun RegisterScreen(navController: NavController) {
             } else {
                 Button(
                     onClick = {
-                        if (username.isEmpty() || course.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                        if (username.isEmpty() || selectedCourse.isEmpty() || email.isEmpty() || password.isEmpty()) {
                             Toast.makeText(
                                 navController.context, "All fields are required!", Toast.LENGTH_LONG
                             ).show()
@@ -112,7 +144,7 @@ fun RegisterScreen(navController: NavController) {
                                         val user = hashMapOf(
                                             "id" to userId,
                                             "name" to username,
-                                            "course" to course,
+                                            "course" to selectedCourse,
                                             "email" to email
                                         )
 

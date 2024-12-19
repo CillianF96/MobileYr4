@@ -2,12 +2,10 @@ package ie.cillian.tushangout.location
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -58,7 +56,6 @@ fun MapLocationScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    // Pass selected location back to the previous screen
                     navController.previousBackStackEntry
                         ?.savedStateHandle?.set("selectedLocation", selectedLocation)
                     navController.popBackStack()

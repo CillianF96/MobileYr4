@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +26,9 @@ import java.util.*
 @Composable
 fun CreateMeetupScreen(navController: NavController) {
     var meetupName by remember { mutableStateOf("") }
-    var course by remember { mutableStateOf("") }
+    var selectedCourse by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    val courses = listOf("sd4", "sd1")
     var selectedTime by remember { mutableStateOf(LocalTime.now()) }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showTimePicker by remember { mutableStateOf(false) }
@@ -65,16 +68,42 @@ fun CreateMeetupScreen(navController: NavController) {
             OutlinedTextField(
                 value = meetupName,
                 onValueChange = { meetupName = it },
-                label = { Text("Meetup Name") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("Meetup Name", color = Color.Black) },
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = TextStyle(color = Color.Black)
             )
 
-            OutlinedTextField(
-                value = course,
-                onValueChange = { course = it },
-                label = { Text("Course") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (selectedCourse.isEmpty()) "Select Course" else selectedCourse,
+                        color = Color.Black
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFFFFA726))
+                ) {
+                    courses.forEach { course ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedCourse = course
+                                expanded = false
+                            },
+                            text = {
+                                Text(text = course, color = Color.Black)
+                            }
+                        )
+                    }
+                }
+            }
 
             Button(
                 onClick = { showTimePicker = true },
@@ -126,7 +155,7 @@ fun CreateMeetupScreen(navController: NavController) {
                 Text(
                     text = "Selected Location: ${it.latitude}, ${it.longitude}",
                     fontSize = 16.sp,
-                    color = Color.Gray
+                    color = Color.Black
                 )
             }
 
@@ -134,11 +163,11 @@ fun CreateMeetupScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    if (meetupName.isNotEmpty() && course.isNotEmpty() && selectedLocation != null) {
+                    if (meetupName.isNotEmpty() && selectedCourse.isNotEmpty() && selectedLocation != null) {
                         isSaving = true
                         val meetup = hashMapOf(
                             "meetupName" to meetupName,
-                            "course" to course,
+                            "course" to selectedCourse,
                             "time" to "${selectedTime.hour}:${selectedTime.minute}",
                             "date" to selectedDate.toString(),
                             "latitude" to selectedLocation!!.latitude,
